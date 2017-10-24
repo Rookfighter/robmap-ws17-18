@@ -1,4 +1,4 @@
 function [r] = rotm(theta)
-    r = [cosd(theta) -sind(theta);
-         sind(theta)  cosd(theta)];
+    r = [cos(theta) -sin(theta);
+         sin(theta)  cos(theta)];
 end

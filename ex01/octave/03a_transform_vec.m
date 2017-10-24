@@ -17,11 +17,19 @@ x4 = [0.5; 1.5; 0.25*pi];
 
 % calc total transform vec
 x = zeros(3,1);
-x(1:2) = x1(1:2) + \
-    rotm(x1(3)) * x2(1:2) + \
-    rotm(x1(3) + x2(3)) * x3(1:2) + \
-    rotm(x1(3) + x2(3) + x4(3)) * x4(1:2);
-x(3) = normalize_angle(x1(3) + x2(3) + x3(3) + x4(3));
+
+% apply x1 transform
+x(1:2) = x(1:2) + x1(1:2);
+x(3)   = normalize_angle(x(3) + x1(3));
+% apply x2 transform
+x(1:2) = x(1:2) + (rotm(x(3)) * x2(1:2));
+x(3)   = normalize_angle(x(3) + x2(3));
+% apply x3 transform
+x(1:2) = x(1:2) + (rotm(x(3)) * x3(1:2));
+x(3)   = normalize_angle(x(3) + x3(3));
+% apply x4 transform
+x(1:2) = x(1:2) + (rotm(x(3)) * x4(1:2));
+x(3)   = normalize_angle(x(3) + x4(3));
 
 % calc homogenous transforms
 t1 = v2t(x1);
@@ -33,6 +41,7 @@ t4 = v2t(x4);
 t = t1 * t2 * t3 * t4;
 xt = t2v(t);
 
+% print outputs
 x
 xt
 t
