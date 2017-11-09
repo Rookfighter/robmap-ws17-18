@@ -12,6 +12,7 @@
 more off;
 
 % clear all variables and close all windows
+clc;
 clear all;
 close all;
 
@@ -50,7 +51,7 @@ showGui = false; % plot to files instead
 
 % Perform filter update for each odometry-observation pair read from the
 % data file.
-for t = 1:size(data.timestep, 2)
+for t = 1:50 %size(data.timestep, 2)
 %for t = 1:80
 
     % Perform the prediction step of the EKF
