@@ -27,60 +27,72 @@ expectedZ = zeros(m*2, 1);
 H = zeros(2 * m, n);
 
 % construct sensor noise matrix
-Q = 0.01 * speye(2*m);
+Q = 0.01 * eye(2*m);
 
 for i = 1:m
     % Get the id of the landmark corresponding to the i-th observation
-	lmId = z(i).id;
-    
-    myz = [z(i).range;
-           z(i).bearing];
+	j = z(i).id;
 
-    idm1 = i*2-1;
-    idm2 = i*2;
-    id1 = lmId*2+2;
-    id2 = lmId*2+3;
+    % vectorized measurement
+    zi = [z(i).range;
+          z(i).bearing];
+
+    i1 = i*2-1; % start idx in z
+    i2 = i*2;   % end idx in z
+    j1 = j*2+2; % start idx in mu
+    j2 = j*2+3; % end idx in mu
+
     % If the landmark is obeserved for the first time:
-    if (observedLandmarks(lmId)==false)
+    if (observedLandmarks(j) == false)
 
         % calc relative pos of landmark to robot
-        relpos = [myz(1) * cos(myz(2) + mu(3));
-                  myz(1) * sin(myz(2) + mu(3));];
-        mu(id1:id2) = mu(1:2) + relpos;
+        relpos = [zi(1) * cos(zi(2) + mu(3));
+                  zi(1) * sin(zi(2) + mu(3));];
+        mu(j1:j2) = mu(1:2) + relpos;
         % Indicate in the observedLandmarks vector that this landmark has been observed
-        observedLandmarks(lmId) = true;
+        observedLandmarks(j) = true;
     endif
 
     % Add the landmark measurement to the Z vector
-    Z(idm1:idm2) = myz;
-    
+    Z(i1:i2) = zi;
+
     % calc expected measurement
-    delt = mu(id1:id2) - mu(1:2);
+    delt = mu(j1:j2) - mu(1:2);
     q = delt' * delt;
-    expectedZ(idm1:idm2) = [sqrt(q);
-                            atan2(delt(2), delt(1)) - mu(3)];
-    
-    F = sparse(5,n);
+    expectedZ(i1:i2) = [sqrt(q);
+                        atan2(delt(2), delt(1)) - mu(3)];
+
+    F = zeros(5,n);
     F(1:3, 1:3) = eye(3);
-    F(4:5, id1:id2) = eye(2);
-    
+    F(4:5, j1:j2) = eye(2);
+
     % compute jacobian for landmark i
-    Hix = (1 / q) * [ -sqrt(q) * delt(1), -sqrt(q) * delt(2),  0,  sqrt(q) * delt(1),  sqrt(q) * delt(2);
-                       delt(2),           -delt(1),           -q, -delt(2),            delt(1)];
+    Hix = [ -sqrt(q) * delt(1), -sqrt(q) * delt(2),  0,  sqrt(q) * delt(1),  sqrt(q) * delt(2);
+             delt(2),           -delt(1),           -q, -delt(2),            delt(1)];
     % every Hi has two rows
-    Hi = Hix * F;
+    Hi = (1 / q) *  Hix * F;
     % Augment H with the new Hi
-    H(idm1:idm2, :) = Hi;	
+    H(i1:i2, :) = Hi;
+
+    % K = sigma * Hi' * inv(Hi * sigma * Hi' + Q(1:2,1:2));
+    % zDiff = Z(i1:i2) - expectedZ(i1:i2);
+    % zDiff(2) = normalize_angle(zDiff(2));
+    % mu = mu + K * (zDiff);
+    % mu(3) = normalize_angle(mu(3));
+    % sigma = (eye(n) - K * Hi) * sigma;
 endfor
 
 % repeat sigma and Q for suitable size
 sigma_r = repmat(sigma, m);
 Q_r = repmat(Q, m, 1);
+
 % calc kalman gain
-K = sigma * H' * inv(H * sigma * H' + Q);
+sigma12 = sigma * H';
+Kn = kron(eye(2*m),[1 1;1 1]);
+K = sigma12 * inv(H * sigma12 + Q);
 % calc new mu and sigma
 mu = mu + K * normalize_all_bearings(Z - expectedZ);
 mu(3) = normalize_angle(mu(3));
-sigma = (speye(n) - K * H) * sigma;
+sigma = (eye(n) - K * H) * sigma;
 
 end
