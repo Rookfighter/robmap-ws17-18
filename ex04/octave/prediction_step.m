@@ -9,16 +9,14 @@ function [mu, sigma] = prediction_step(mu, sigma, u)
 n = size(mu, 1);
 
 % define f matrix as sparse
-F = sparse(3, n);
+F = zeros(3, n);
 F(1:3,1:3) = eye(3);
 
 % define motion noise
 motionNoise = 0.1;
-R3 = [motionNoise, 0, 0; 
-      0, motionNoise, 0; 
-      0, 0, motionNoise/10];
-R = sparse(n);
-R(1:3,1:3) = R3;
+R = [motionNoise, 0, 0;
+     0, motionNoise, 0;
+     0, 0, motionNoise/10];
 
 % calc odometry motion model
 motion = [u.t * cos(mu(3) + u.r1);
@@ -29,9 +27,9 @@ motion = [u.t * cos(mu(3) + u.r1);
 Gx = [0 0 -u.t * sin(mu(3) + u.r1);
       0 0  u.t * cos(mu(3) + u.r1);
       0 0  0];
-G = speye(n) + F' * Gx * F;
+G = eye(n) + F' * Gx * F;
 
-% calc estimated mu and sigma 
+% calc estimated mu and sigma
 mu = mu + F' * motion;
 sigma = G * sigma * G' + F' * R * F;
 
