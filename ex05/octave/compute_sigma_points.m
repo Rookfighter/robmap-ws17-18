@@ -9,11 +9,24 @@ function [sigma_points, w_m, w_c] = compute_sigma_points(mu, sigma, lambda, alph
 
 n = length(mu);
 sigma_points = zeros(n,2*n+1);
+w_m = zeros(1, 2*n+1);
+w_c = zeros(1, 2*n+1);
 
-% TODO: compute all sigma points
+% compute matrix for sigma points
+tmp = sqrtm((n + lambda) * sigma);
+% repeat mu for easier computation
+mu_r = repmat(mu,1,n);
+% compute sigma points
+sigma_points(:,1) = mu
+sigma_points(:,2:n+1) = mu_r + tmp(:, 1:n)
+sigma_points(:,n+2:2*n+1) = mu_r + tmp(:, 1:n)
 
+% compute w_m
+w_m(1) = lambda / (n + lambda);
+w_m(2:2*n+1) = 1 / (2 * (n + lambda));
 
-% TODO compute weight vectors w_m and w_c
-
+% compute w_c
+w_c(1) = w_m(1) + (1 - alpha^2 + beta);
+w_c(2:2*n+1) = w_m(2:2*n+1);
 
 end
