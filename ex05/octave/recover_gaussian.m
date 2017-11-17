@@ -5,12 +5,23 @@ function [mu, sigma] = recover_gaussian(sigma_points, w_m, w_c)
 % The weight vectors are each 1x2n+1 in size,
 % where n is the dimensionality of the distribution.
 
-% Try to vectorize your operations as much as possible
+% compute new mu
+mu = sigma_points * w_m';
 
-% TODO: compute mu
+% some help variables
+n = length(mu);
+mu_r = repmat(mu, 1, 2*n+1);
+% define intermediate result
+tmp = sigma_points - mu_r;
 
+% solve iterative
+% sigma = zeros(n, n);
+% for i = 1:2*n+1
+%     d = sigma_points(:,i) - mu;
+%     sigma += w_c(i) * d *  d';
+% end
 
-% TODO: compute sigma
-
+% compute new sigma
+sigma  = tmp * diag(w_c) * tmp';
 
 end
