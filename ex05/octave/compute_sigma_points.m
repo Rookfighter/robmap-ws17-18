@@ -15,11 +15,11 @@ w_c = zeros(1, 2*n+1);
 % compute matrix for sigma points
 tmp = sqrtm((n + lambda) * sigma);
 % repeat mu for easier computation
-mu_r = repmat(mu,1,n);
+mu_r = repmat(mu, 1, n);
 % compute sigma points
-sigma_points(:,1) = mu
-sigma_points(:,2:n+1) = mu_r + tmp(:, 1:n)
-sigma_points(:,n+2:2*n+1) = mu_r + tmp(:, 1:n)
+sigma_points(:,1) = mu;
+sigma_points(:,2:n+1) = mu_r + tmp;
+sigma_points(:,n+2:2*n+1) = mu_r - tmp;
 
 % compute w_m
 w_m(1) = lambda / (n + lambda);
