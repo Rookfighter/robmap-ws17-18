@@ -10,7 +10,7 @@ mu = sigma_points * w_m';
 
 % some help variables
 n = length(mu);
-mu_r = repmat(mu, 1, 2*n+1);
+mu_r = repmat(mu, 1, length(sigma_points));
 % define intermediate result
 tmp = sigma_points - mu_r;
 
