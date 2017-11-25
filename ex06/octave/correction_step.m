@@ -69,12 +69,12 @@ for i = 1:m
 
     % calc recovered measurements
     % TODO why use cos and sin? => same result as normal average!
-    % trig = [sin(z_ex(2,:));
-    %         cos(z_ex(2,:))];
-    % trig = trig * wm';
-    % zm(1) = zm(1) * wm';
-    % zm(2) = atan2(trig(1), trig(2));
-    zm = z_ex * wm';
+    trig = [sin(z_ex(2,:));
+            cos(z_ex(2,:))];
+    trig = trig * wm';
+    zm = [z_ex(1,:) * wm';
+          atan2(trig(1), trig(2))];
+    % zm = z_ex * wm';
     zm(2) = normalize_angle(zm(2));
 
     % replicate zm for calculating diff
