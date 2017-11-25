@@ -82,13 +82,10 @@ for i = 1:m
     % sigma = (eye(n) - K * Hi) * sigma;
 endfor
 
-% repeat sigma and Q for suitable size
-sigma_r = repmat(sigma, m);
-Q_r = repmat(Q, m, 1);
-
+% Note: calculating kalman gain in each iteration or all at once
+% (as here) are equivalent if the measrurements are independent
 % calc kalman gain
 sigma12 = sigma * H';
-Kn = kron(eye(2*m),[1 1;1 1]);
 K = sigma12 * inv(H * sigma12 + Q);
 % calc new mu and sigma
 mu = mu + K * normalize_all_bearings(Z - expectedZ);
