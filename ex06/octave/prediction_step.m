@@ -45,13 +45,13 @@ wc = wm;
 
 % calc estimated mu
 % TODO why use cos and sin? => same result as normal average!
-mu = y * wm';
-mu(3) = normalize_angle(mu(3));
-
 % trig = [sin(y(3,:));
 %         cos(y(3,:))];
 % trig = trig * wm';
-% mu(3,:) = atan2(trig(1), trig(2));
+% mu(1:2) = y(1:2,:) * wm';
+% mu(3) = atan2(trig(1), trig(2));
+mu = y * wm';
+mu(3) = normalize_angle(mu(3));
 
 % replicate mu for vectorized multiplication
 mu_r = repmat(mu, 1, length(sigma_points));
