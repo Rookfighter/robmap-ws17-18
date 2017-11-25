@@ -31,7 +31,7 @@ Q = 0.01 * eye(2*m);
 
 for i = 1:m
     % Get the id of the landmark corresponding to the i-th observation
-	j = z(i).id;
+    j = z(i).id;
 
     % vectorized measurement
     zi = [z(i).range;
