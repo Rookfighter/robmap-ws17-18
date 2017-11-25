@@ -1,4 +1,4 @@
-% This is the main script for computing a transformed distribution according 
+% This is the main script for computing a transformed distribution according
 % to the unscented transform. This script calls all the required
 % functions in the correct order.
 % If you are unsure about the input and return values of functions you
@@ -29,8 +29,7 @@ lambda = alpha*alpha*(n+kappa)-n;
 [sigma_points, w_m, w_c] = compute_sigma_points(mu, sigma, lambda, alpha, beta);
 
 % Plot original distribution with sampled sigma points
-plot(mu(1),mu(2),'ro','markersize',12, 'linewidth',3)
-legend('original distribution')
+plot(mu(1),mu(2),'ro','markersize',12, 'linewidth',3,'DisplayName', 'original distribution')
 drawprobellipse(mu, sigma, 0.9, 'r');
 plot(sigma_points(1,:),sigma_points(2,:),'kx','markersize', 10, 'linewidth',3)
 
@@ -41,10 +40,11 @@ sigma_points_trans = transform(sigma_points);
 [mu_trans, sigma_trans] = recover_gaussian(sigma_points_trans, w_m, w_m);
 
 % Plot transformed sigma points with corresponding mu and sigma
-plot(mu_trans(1),mu_trans(2),'bo','markersize', 12, 'linewidth',3)
-legend('transformed distribution')
+plot(mu_trans(1),mu_trans(2),'bo','markersize', 12, 'linewidth',3, 'DisplayName', 'transformed distribution')
 drawprobellipse(mu_trans, sigma_trans, 0.9, 'b');
 plot(sigma_points_trans(1,:),sigma_points_trans(2,:),'kx','markersize', 10, 'linewidth',3)
+
+legend('show')
 
 % Figure axes setup
 title('Unscented Transform', 'fontsize', 20)
