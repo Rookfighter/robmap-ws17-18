@@ -37,7 +37,7 @@ plot(sigma_points(1,:),sigma_points(2,:),'kx','markersize', 10, 'linewidth',3)
 sigma_points_trans = transform(sigma_points);
 
 % Recover mu and sigma of the transformed distribution
-[mu_trans, sigma_trans] = recover_gaussian(sigma_points_trans, w_m, w_m);
+[mu_trans, sigma_trans] = recover_gaussian(sigma_points_trans, w_m, w_c);
 
 % Plot transformed sigma points with corresponding mu and sigma
 plot(mu_trans(1),mu_trans(2),'bo','markersize', 12, 'linewidth',3, 'DisplayName', 'transformed distribution')
