@@ -58,14 +58,12 @@ for sc=1:columns(laserEndPntsMapFrame)
 
 endfor
 
-
 % update the log odds values in mapUpdate for each free cell according to probFree.
-%freeCells
 logOddsFree = prob_to_log_odds(probFree);
 for i = 1 : columns(freeCells)
     x = freeCells(1, i);
-    y = freeCells(1, i);
-    mapUpdate(y,x) = logOddsFree;
+    y = freeCells(2, i);
+    mapUpdate(x,y) = logOddsFree;
 end
 
 % update the log odds values in mapUpdate for each laser endpoint according to probOcc.
@@ -73,7 +71,7 @@ logOddsOcc = prob_to_log_odds(probOcc);
 for i = 1:columns(laserEndPntsMapFrame)
     x = laserEndPntsMapFrame(1, i);
     y = laserEndPntsMapFrame(2, i);
-    mapUpdate(y,x) = logOddsOcc;
+    mapUpdate(x,y) = logOddsOcc;
 end
 
 end
