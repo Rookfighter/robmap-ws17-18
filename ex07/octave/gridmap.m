@@ -37,8 +37,8 @@ mapSize = ceil([mapSizeMeters/gridSize]);
 logOddsPrior = prob_to_log_odds(prior);
 
 % The occupancy value of each cell in the map is initialized with the prior.
-map = logOddsPrior*ones(mapSize);
-disp('Map initialized. Map size:'), disp(size(map))
+gridMap = logOddsPrior*ones(mapSize);
+disp('Map initialized. Map size:'), disp(size(gridMap))
 
 % Map offset used when converting from world to map coordinates.
 offset = [offsetX; offsetY];
@@ -46,19 +46,19 @@ offset = [offsetX; offsetY];
 % Main loop for updating map cells.
 % You can also take every other point when debugging to speed up the loop (t=1:2:size(poses,1))
 for(t=1:size(poses,1))
-	t
-	% Robot pose at time t.
-	robPose = [poses(t,1);poses(t,2);poses(t,3)];
+    t
+    % Robot pose at time t.
+    robPose = [poses(t,1);poses(t,2);poses(t,3)];
 
-	% Laser scan made at time t.
-	sc = laser(1,t);
-	% Compute the mapUpdate, which contains the log odds values to add to the map.
-	[mapUpdate, robPoseMapFrame, laserEndPntsMapFrame] = inv_sensor_model(map, sc, robPose, gridSize, offset, probOcc, probFree);
+    % Laser scan made at time t.
+    sc = laser(1,t);
+    % Compute the mapUpdate, which contains the log odds values to add to the map.
+    [mapUpdate, robPoseMapFrame, laserEndPntsMapFrame] = inv_sensor_model(gridMap, sc, robPose, gridSize, offset, probOcc, probFree);
 
-	mapUpdate -= logOddsPrior*ones(size(map));
-	% Update the occupancy values of the affected cells.
-	map += mapUpdate;
+    mapUpdate -= logOddsPrior*ones(size(gridMap));
+    % Update the occupancy values of the affected cells.
+    gridMap += mapUpdate;
 
-	% Plot current map and robot trajectory so far.
-        plot_map(map, mapBox, robPoseMapFrame, poses, laserEndPntsMapFrame, gridSize, offset, t);
+    % Plot current map and robot trajectory so far.
+    plot_map(gridMap, mapBox, robPoseMapFrame, poses, laserEndPntsMapFrame, gridSize, offset, t);
 endfor
