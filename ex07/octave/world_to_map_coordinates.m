@@ -6,7 +6,6 @@ function [pntsMap] = world_to_map_coordinates(pntsWorld, gridSize, offset)
 % when converting to map coordinates.
 % pntsMap is a 2xN matrix containing the corresponding points in map coordinates.
 
-% TODO: compute pntsMap
-
+pntsMap = ceil((pntsWorld - offset) / gridSize);
 
 end

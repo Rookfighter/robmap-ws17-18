@@ -49,7 +49,7 @@ for(t=1:size(poses,1))
 	t
 	% Robot pose at time t.
 	robPose = [poses(t,1);poses(t,2);poses(t,3)];
-	
+
 	% Laser scan made at time t.
 	sc = laser(1,t);
 	% Compute the mapUpdate, which contains the log odds values to add to the map.
@@ -58,7 +58,7 @@ for(t=1:size(poses,1))
 	mapUpdate -= logOddsPrior*ones(size(map));
 	% Update the occupancy values of the affected cells.
 	map += mapUpdate;
-	
+
 	% Plot current map and robot trajectory so far.
         plot_map(map, mapBox, robPoseMapFrame, poses, laserEndPntsMapFrame, gridSize, offset, t);
 endfor
