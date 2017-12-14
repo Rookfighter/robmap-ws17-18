@@ -53,8 +53,9 @@ for sc=1:columns(laserEndPntsMapFrame)
 
     % calc grid cells between robot and laser beam end point
     [X,Y] = bresenham([startp'; endp']);
+    l = length(X);
     % add all points in laserbeam to freeCells
-    freeCells = [freeCells, [X;Y]];
+    freeCells = [freeCells, [X(1:l-1);Y(1:l-1)]];
 
 endfor
 
@@ -63,7 +64,7 @@ logOddsFree = prob_to_log_odds(probFree);
 for i = 1 : columns(freeCells)
     x = freeCells(1, i);
     y = freeCells(2, i);
-    mapUpdate(x,y) = logOddsFree;
+    mapUpdate(x,y) += logOddsFree;
 end
 
 % update the log odds values in mapUpdate for each laser endpoint according to probOcc.
@@ -71,7 +72,7 @@ logOddsOcc = prob_to_log_odds(probOcc);
 for i = 1:columns(laserEndPntsMapFrame)
     x = laserEndPntsMapFrame(1, i);
     y = laserEndPntsMapFrame(2, i);
-    mapUpdate(x,y) = logOddsOcc;
+    mapUpdate(x,y) += logOddsOcc;
 end
 
 end
