@@ -2,4 +2,5 @@
 ~swp
 ex01/plots/*.png
 ex04/plots/*.png
+ex05/plots/unscented.png
 ex06/plots/*.png
