@@ -13,53 +13,82 @@ numParticles = length(particles);
 % Number of measurements in this time step
 m = size(z, 2);
 
-% TODO: Construct the sensor noise matrix Q_t (2 x 2)
+% sensor noise matrix
+Q_t = [0.1 0;
+       0   0.1];
+
+% default importance weight for particle
+p0 = 1 / numParticles;
 
 % process each particle
 for i = 1:numParticles
-  robot = particles(i).pose;
-  % process each measurement
-  for j = 1:m
-    % Get the id of the landmark corresponding to the j-th observation
-    % particles(i).landmarks(l) is the EKF for this landmark
-    l = z(j).id;
+    % abbrev for estimated robot pose of this particle
+    rpose = particles(i).pose;
 
-    % The (2x2) EKF of the landmark is given by
-    % its mean particles(i).landmarks(l).mu
-    % and by its covariance particles(i).landmarks(l).sigma
+    % process each measurement
+    for j = 1:m
+        % Get the id of the landmark corresponding to the j-th observation
+        % particles(i).landmarks(l) is the EKF for this landmark
+        l = z(j).id;
+        % vector representation of the measurement
+        zvec = [z(j).range; z(j).bearing];
 
-    % If the landmark is observed for the first time:
-    if (particles(i).landmarks(l).observed == false)
+        % The (2x2) EKF of the landmark is given by
+        % its mean particles(i).landmarks(l).mu
+        % and by its covariance particles(i).landmarks(l).sigma
 
-      % TODO: Initialize its position based on the measurement and the current robot pose:
+        % If the landmark is observed for the first time:
+        if particles(i).landmarks(l).observed == false
 
-      % get the Jacobian with respect to the landmark position
-      [h, H] = measurement_model(particles(i), z(j));
+            % calc mean by inverse measurement model
+            mu_j = rpose(1:2) + [zvec(1) * cos(rpose(3) + zvec(2));
+                                 zvec(1) * sin(rpose(3) + zvec(2))];
+            particles(i).landmarks(l).mu = mu_j;
 
-      % TODO: initialize the EKF for this landmark
+            % get the Jacobian with respect to the landmark position
+            [h, H] = measurement_model(particles(i), z(j));
 
-      % Indicate that this landmark has been observed
-      particles(i).landmarks(l).observed = true;
+            % calc covariance
+            H_inv = inv(H);
+            sigma_j =  H_inv * Q_t * H_inv';
+            particles(i).landmarks(l).sigma = sigma_j;
 
-    else
+            % Indicate that this landmark has been observed
+            particles(i).landmarks(l).observed = true;
+            % set default importance weight for particle
+            particles(i).weight = p0;
+        else
 
-      % get the expected measurement
-      [expectedZ, H] = measurement_model(particles(i), z(j));
+            % some abbrevs
+            mu_j    = particles(i).landmarks(l).mu;
+            sigma_j = particles(i).landmarks(l).sigma;
 
-      % TODO: compute the measurement covariance
+            % get the expected measurement
+            [zexp, H] = measurement_model(particles(i), z(j));
 
-      % TODO: calculate the Kalman gain
+            % calc measurement covariance
+            Q     = H * sigma_j * H' + Q_t;
+            Q_inv = inv(Q);
 
-      % TODO: compute the error between the z and expectedZ (remember to normalize the angle)
+            % calc Kalman gain
+            K = sigma_j * H' * Q_inv;
 
-      % TODO: update the mean and covariance of the EKF for this landmark
+            % calc error between the z and expectedZ; normalize angle
+            zerr    = zvec - zexp;
+            zerr(2) = normalize_angle(zerr(2));
 
-      % TODO: compute the likelihood of this observation, multiply with the former weight
-      %       to account for observing several features in one time step
+            % update the mean and covariance of the EKF for this landmark
+            particles(i).landmarks(l).mu    = mu_j + K * zerr;
+            particles(i).landmarks(l).sigma = (eye(2) - K * H) * sigma_j;
 
-    end
-
-  end % measurement loop
+            % compute the likelihood of this observation, multiply with the former weight
+            % to account for observing several features in one time step
+            particles(i).weight = inv(sqrt(norm1(2 * pi * Q))) * exp(-0.5 * zerr' * Q_inv * zerr);
+            % same but less efficient (save one inversion and squareroot):
+            % sig = Q;
+            % mu  = zexp;
+            % w   = mvnpdf(zvec, mu, sig);
+        end
+    end % measurement loop
 end % particle loop
-
 end
