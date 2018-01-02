@@ -10,14 +10,14 @@
 function X = ls_calibrate_odometry(Z)
     N = size(Z, 1);
     % max iterations
-    M = 100;
+    M = 10;
     % Error is normal distributed: omega = sigma = identity
     Omega = eye(3);
     % initial solution (the identity transformation)
     X = eye(3);
 
-    U_act = Z(i, 1:3)';
-    U_est = Z(i, 4:6)';
+    U_act = Z(:, 1:3)';
+    U_est = Z(:, 4:6)';
 
     % error values
     e = zeros(3, N);
@@ -27,16 +27,22 @@ function X = ls_calibrate_odometry(Z)
         H = zeros(9,9);
         b = zeros(1,9);
 
-        % accumulate data from measurements
-        for i=1:N
-            e(:,i) = error_function(i, X, Z);
-            ei = e(:,i);
-            J = jacobian(i, Z);
+        e = U_act - X * U_est;
+        J = zeros(3,9);
+        tmp = sum(U_est,2)';
+        J(1, 1:3) = tmp;
+        J(2, 4:6) = tmp;
+        J(3, 7:9) = tmp;
 
-            b = b + ei' * Omega * ei;
-            H = H + J'  * Omega * J;
-        end
-        b = b';
+        % % accumulate data from measurements
+        % for i=1:N
+        %     ei = e(:,i);
+        %     J = jacobian(i, Z);
+        %
+        %     b = b + ei' * Omega * J;
+        %     H = H + J'  * Omega * J;
+        % end
+        % b = b';
 
         % check if error is sufficiently small
         if norm(e) <= 1e-3
@@ -44,7 +50,7 @@ function X = ls_calibrate_odometry(Z)
         end
 
         % calc newton step
-        pk = -inv(H) * b;
+        pk = -inv(J) * e;
         X = X + reshape(pk, [3,3]);
     end
 end
