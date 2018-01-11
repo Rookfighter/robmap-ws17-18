@@ -10,52 +10,48 @@
 function X = ls_calibrate_odometry(Z)
     N = size(Z, 1);
     % max iterations
-    M = 10;
+    maxit = 100;
     % Error is normal distributed: omega = sigma = identity
     Omega = eye(3);
-    % initial solution (the identity transformation)
-    X = eye(3);
+    % initial solution
+    X = zeros(9,1);
+    % alpha param for Levenberg-Marquardt method
+    % get Gauss-Newton for alpha = 0
+    alpha = 1.0;
 
-    U_act = Z(:, 1:3)';
-    U_est = Z(:, 4:6)';
 
-    % error values
-    e = zeros(3, N);
-
-    for k=1:M
+    disp('Run newton method.')
+    for k=1:maxit
         % init H and b with 0
         H = zeros(9,9);
         b = zeros(1,9);
 
-        e = U_act - X * U_est;
-        J = zeros(3,9);
-        tmp = sum(U_est,2)';
-        J(1, 1:3) = tmp;
-        J(2, 4:6) = tmp;
-        J(3, 7:9) = tmp;
+        % accumulate data from measurements
+        for i=1:N
+            erri = error_function(i, X, Z); %err(:,i);
+            Ji   = jacobian(i, Z);
 
-        % % accumulate data from measurements
-        % for i=1:N
-        %     ei = e(:,i);
-        %     J = jacobian(i, Z);
-        %
-        %     b = b + ei' * Omega * J;
-        %     H = H + J'  * Omega * J;
-        % end
-        % b = b';
+            b = b + erri' * Omega * Ji;
+            H = H + Ji'  * Omega * Ji;
+        end
+        b = b';
 
-        % check if error is sufficiently small
-        if norm(e) <= 1e-3
+        % apply Levenberg-Marquardt method
+        H = H + eye(9) * alpha;
+        % calc newton step
+        pk = -inv(H) * b;
+        X = X + pk;
+
+        % check if we found minimum, i.e. pk is sufficiently close
+        % to zero
+        if norm(pk) <= 1e-3
+            disp(['Newton method converged after ', num2str(k), ' iterations!'])
             break;
         end
-
-        % calc newton step
-        pk = -inv(J) * e;
-        X = X + reshape(pk, [3,3]);
     end
 end
 
-% this function computes the error of the i^th measurement in Z
+% this U_estfunction computes the error of the i^th measurement in Z
 % given the calibration parameters
 % i:	the number of the measurement
 % X:	the actual calibration parameters
@@ -65,6 +61,10 @@ end
 function e = error_function(i, X, Z)
     U_act = Z(i, 1:3)';
     U_est = Z(i, 4:6)';
+
+    X = [X(1:3)';
+         X(4:6)';
+         X(7:9)'];
 
     e =  U_act - X * U_est;
 end
@@ -77,7 +77,7 @@ function J = jacobian(i, Z)
     U_est = Z(i, 4:6);
 
     J = zeros(3,9);
-    J(1, 1:3) = U_est;
-    J(2, 4:6) = U_est;
-    J(3, 7:9) = U_est;
+    J(1, 1:3) = -U_est;
+    J(2, 4:6) = -U_est;
+    J(3, 7:9) = -U_est;
 end

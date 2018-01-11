@@ -5,11 +5,9 @@
 % C:	Nx3 matrix containing the corrected odometry measurements
 
 function C = apply_odometry_correction(X, U)
-    % TODO: compute the calibrated motion vector, try to vectorize
-    % N = size(U, 1);
-    % C = zeros(N, 3);
-    % for i=1:N
-    %     C(i,:) = (X * U(i,:)')';
-    % end
+    X = [X(1:3)';
+         X(4:6)';
+         X(7:9)'];
+
     C = U * X';
 end
