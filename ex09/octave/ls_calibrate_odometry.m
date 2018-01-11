@@ -36,18 +36,18 @@ function X = ls_calibrate_odometry(Z)
         end
         b = b';
 
+        % check if we found minimum, i.e. b is sufficiently close
+        % to zero
+        if norm(b) <= 1e-3
+            disp(['Newton method converged after ', num2str(k), ' iterations!'])
+            break;
+        end
+
         % apply Levenberg-Marquardt method
         H = H + eye(9) * alpha;
         % calc newton step
         pk = -inv(H) * b;
         X = X + pk;
-
-        % check if we found minimum, i.e. pk is sufficiently close
-        % to zero
-        if norm(pk) <= 1e-3
-            disp(['Newton method converged after ', num2str(k), ' iterations!'])
-            break;
-        end
     end
 end
 
