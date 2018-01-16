@@ -13,7 +13,28 @@
 % B 3x3 Jacobian wrt x2
 function [e, A, B] = linearize_pose_pose_constraint(x1, x2, z)
 
-  % TODO compute the error and the Jacobians of the error
+    % transform poses and meaurement to homog corrds
+    xt1 = v2t(x1);
+    xt2 = v2t(x2);
+    zt  = v2t(z);
 
+    % calculate error
+    e = t2v(inv(zt) * (inv(xt1) * xt2));
 
+    d = x2 - x1;
+
+    % calculate intermediate jacobian
+    Atmp = [-cos(x1(3)), -sin(x1(3)), -sin(x1(3)) * d(1) + cos(x1(3)) * d(2);
+             sin(x1(3)), -cos(x1(3)), -cos(x1(3)) * d(1) - sin(x1(3)) * d(2)];
+
+    % retrieve rotation matrix of z
+    Rz = zt(1:2,1:2)';
+
+    A = [Rz * Atmp;
+         0, 0, -1];
+
+    Btmp = [-Atmp(1,1:2), 0;
+            -Atmp(2,1:2), 0];
+    B = [Rz * Btmp;
+         0, 0, 1];
 end;

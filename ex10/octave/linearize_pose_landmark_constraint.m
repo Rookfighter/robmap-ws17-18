@@ -10,7 +10,17 @@
 % B 2x2 Jacobian wrt l
 function [e, A, B] = linearize_pose_landmark_constraint(x, l, z)
 
-  % TODO compute the error and the Jacobians of the error
+    X = v2t(x);
+    % retrieve rotation matrix of x
+    Rx = X(1:2,1:2);
 
+    d = l(1:2) - x(1:2);
+    % calculate error
+    e = Rx' * d - z;
+    % jacobian of err wrt x
+    A = [-cos(x(3)), -sin(x(3)), -sin(x(3)) * d(1) + cos(x(3)) * d(2);
+          sin(x(3)), -cos(x(3)), -cos(x(3)) * d(1) - sin(x(3)) * d(2)];
+    % jacobian of err wrt l
+    B = -A(1:2, 1:2);
 
 end;
