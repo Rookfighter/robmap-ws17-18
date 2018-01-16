@@ -8,8 +8,8 @@ addpath('tools');
 % only leave one line uncommented
 
 % simulation datasets
-load ../data/simulation-pose-pose.dat
-%load ../data/simulation-pose-landmark.dat
+%load ../data/simulation-pose-pose.dat
+load ../data/simulation-pose-landmark.dat
 
 % real-world datasets
 %load ../data/intel.dat
@@ -31,22 +31,22 @@ err = 0;
 
 % carry out the iterations
 for i = 1:numIterations
-  printf('Performing iteration %d\n', i);
+    printf('Performing iteration %d\n', i);
 
-  dx = linearize_and_solve(g);
+    %dx = linearize_and_solve(g);
 
-  % TODO: apply the solution to the state vector g.x
+    % TODO: apply the solution to the state vector g.x
 
-  % plot the current state of the graph
-  plot_graph(g, i);
+    % plot the current state of the graph
+    plot_graph(g, i);
 
-  err = compute_global_error(g);
+    err = compute_global_error(g);
 
-  % Print current error
-  printf('Current error %f\n', err);
+    % Print current error
+    printf('Current error %f\n', err);
 
-  % TODO: implement termination criterion as suggested on the sheet
-
+    % TODO: implement termination criterion as suggested on the sheet
+    exit
 end
 
 printf('Final error %f\n', err);
