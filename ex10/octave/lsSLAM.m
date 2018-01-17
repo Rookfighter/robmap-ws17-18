@@ -8,8 +8,8 @@ addpath('tools');
 % only leave one line uncommented
 
 % simulation datasets
-load ../data/simulation-pose-pose.dat
-%load ../data/simulation-pose-landmark.dat
+%load ../data/simulation-pose-pose.dat
+load ../data/simulation-pose-landmark.dat
 
 % real-world datasets
 %load ../data/intel.dat
@@ -35,7 +35,8 @@ for i = 1:numIterations
 
     dx = linearize_and_solve(g);
 
-    % TODO: apply the solution to the state vector g.x
+    % apply the solution to the state vector g.x
+    % simply add dx to g.x
     g.x = g.x + dx;
 
     % plot the current state of the graph
@@ -46,7 +47,7 @@ for i = 1:numIterations
     % Print current error
     printf('Current error %f\n', err);
 
-    % TODO: implement termination criterion as suggested on the sheet
+    % terminate if max val of dx is less than a certain tolerance
     [mdx, _] = max(abs(dx));
     if mdx < EPSILON
         break;

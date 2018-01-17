@@ -68,30 +68,41 @@ for eid = 1:length(g.edges)
         % of the H matrix and the vector b.
         % edge.measurement is the measurement
         % edge.information is the information matrix
-        x1 = g.x(edge.fromIdx:edge.fromIdx+2);  % the robot pose
-        x2 = g.x(edge.toIdx:edge.toIdx+1);      % the landmark
-        Omega = edge.information;
         i = edge.fromIdx;
         j = edge.toIdx;
+        x = g.x(i:i+2);  % the robot pose
+        l = g.x(j:j+1);  % the landmark
+        z = edge.measurement;
+        Omega = edge.information;
 
         % Computing the error and the Jacobians
         % e the error vector
         % A Jacobian wrt x1
         % B Jacobian wrt x2
-        [e, A, B] = linearize_pose_landmark_constraint(x1, x2, edge.measurement);
+        [e, A, B] = linearize_pose_landmark_constraint(x, l, z);
 
-        % TODO: compute and add the term to H and b
+        % compute and add the term to H and b
+        % Hii
+        H(i:i+2,i:i+2) += A' * Omega * A;
+        % Hij
+        H(i:i+2,j:j+1) += A' * Omega * B;
+        % Hji
+        H(j:j+1,i:i+2) += B' * Omega * A;
+        % Hjj
+        H(j:j+1,j:j+1) += B' * Omega * B;
 
-
+        % biT
+        b(i:i+2) += e' * Omega * A;
+        % bjT
+        b(j:j+1) += e' * Omega * B;
     end
 end
 
 disp('solving system');
 
-% TODO: solve the linear system, whereas the solution should be stored in dx
-% Remember to use the backslash operator instead of inverting H
-
+% transpose b
 b = b';
+% calculate newton step
 dx = H\-b;
 
 end
