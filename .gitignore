@@ -6,4 +6,5 @@ ex05/plots/unscented.png
 ex06/plots/*.png
 ex07/plots/*.png
 ex08/plots/*.png
+ex10/plots/*.png
 **/octave-workspace
