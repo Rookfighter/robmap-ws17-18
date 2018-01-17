@@ -8,8 +8,8 @@ addpath('tools');
 % only leave one line uncommented
 
 % simulation datasets
-%load ../data/simulation-pose-pose.dat
-load ../data/simulation-pose-landmark.dat
+load ../data/simulation-pose-pose.dat
+%load ../data/simulation-pose-landmark.dat
 
 % real-world datasets
 %load ../data/intel.dat
@@ -33,9 +33,10 @@ err = 0;
 for i = 1:numIterations
     printf('Performing iteration %d\n', i);
 
-    %dx = linearize_and_solve(g);
+    dx = linearize_and_solve(g);
 
     % TODO: apply the solution to the state vector g.x
+    g.x = g.x + dx;
 
     % plot the current state of the graph
     plot_graph(g, i);
@@ -46,7 +47,10 @@ for i = 1:numIterations
     printf('Current error %f\n', err);
 
     % TODO: implement termination criterion as suggested on the sheet
-    exit
+    [mdx, _] = max(abs(dx));
+    if mdx < EPSILON
+        break;
+    end
 end
 
 printf('Final error %f\n', err);

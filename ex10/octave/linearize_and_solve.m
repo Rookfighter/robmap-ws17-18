@@ -26,6 +26,9 @@ for eid = 1:length(g.edges)
     % edge.information is the information matrix
     x1 = g.x(edge.fromIdx:edge.fromIdx+2);  % the first robot pose
     x2 = g.x(edge.toIdx:edge.toIdx+2);      % the second robot pose
+    Omega = edge.information;
+    i = edge.fromIdx;
+    j = edge.toIdx;
 
     % Computing the error and the Jacobians
     % e the error vector
@@ -33,14 +36,23 @@ for eid = 1:length(g.edges)
     % B Jacobian wrt x2
     [e, A, B] = linearize_pose_pose_constraint(x1, x2, edge.measurement);
 
-
     % TODO: compute and add the term to H and b
+    hi = (i-1)*3+1;
+    hj = (j-1)*3+1;
+
+    H(hi:hi+2,hi:hi+2) += A' * Omega * A;
+    H(hi:hi+2,hj:hj+2) += A' * Omega * B;
+    H(hj:hj+2,hi:hi+2) += B' * Omega * A;
+    H(hj:hj+2,hj:hj+2) += B' * Omega * B;
+
+    b(hi:hi+2) += (e' * Omega * A)';
+    b(hj:hj+2) += (e' * Omega * B)';
 
 
     if (needToAddPrior)
       % TODO: add the prior for one pose of this edge
       % This fixes one node to remain at its current location
-      
+
       needToAddPrior = false;
     end
 
@@ -54,13 +66,15 @@ for eid = 1:length(g.edges)
     % edge.information is the information matrix
     x1 = g.x(edge.fromIdx:edge.fromIdx+2);  % the robot pose
     x2 = g.x(edge.toIdx:edge.toIdx+1);      % the landmark
+    Omega = edge.information;
+    i = edge.fromIdx;
+    j = edge.toIdx;
 
     % Computing the error and the Jacobians
     % e the error vector
     % A Jacobian wrt x1
     % B Jacobian wrt x2
     [e, A, B] = linearize_pose_landmark_constraint(x1, x2, edge.measurement);
-
 
     % TODO: compute and add the term to H and b
 
@@ -73,5 +87,6 @@ disp('solving system');
 % TODO: solve the linear system, whereas the solution should be stored in dx
 % Remember to use the backslash operator instead of inverting H
 
+dx = H\-b;
 
 end
