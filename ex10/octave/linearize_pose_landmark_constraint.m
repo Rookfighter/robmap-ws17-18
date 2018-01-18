@@ -18,8 +18,10 @@ function [e, A, B] = linearize_pose_landmark_constraint(x, l, z)
     % calculate error
     e = Rx' * d - z;
     % jacobian of err wrt x
-    A = [-cos(x(3)), -sin(x(3)), -sin(x(3)) * d(1) + cos(x(3)) * d(2);
-          sin(x(3)), -cos(x(3)), -cos(x(3)) * d(1) - sin(x(3)) * d(2)];
+    s = sin(x(3));
+    c = cos(x(3));
+    A = [-c, -s, -s * d(1) + c * d(2);
+          s, -c, -c * d(1) - s * d(2)];
     % jacobian of err wrt l
     B = -A(1:2, 1:2);
 

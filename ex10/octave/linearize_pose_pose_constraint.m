@@ -24,8 +24,10 @@ function [e, A, B] = linearize_pose_pose_constraint(x1, x2, z)
     d = x2 - x1;
 
     % calculate intermediate jacobian
-    Atmp = [-cos(x1(3)), -sin(x1(3)), -sin(x1(3)) * d(1) + cos(x1(3)) * d(2);
-             sin(x1(3)), -cos(x1(3)), -cos(x1(3)) * d(1) - sin(x1(3)) * d(2)];
+    s = sin(x1(3));
+    c = cos(x1(3));
+    Atmp = [-c, -s, -s * d(1) + c * d(2);
+             s, -c, -c * d(1) - s * d(2)];
 
     % retrieve rotation matrix of z
     Rz = zt(1:2,1:2)';

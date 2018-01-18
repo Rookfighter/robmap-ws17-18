@@ -8,8 +8,8 @@ addpath('tools');
 % only leave one line uncommented
 
 % simulation datasets
-%load ../data/simulation-pose-pose.dat
-load ../data/simulation-pose-landmark.dat
+load ../data/simulation-pose-pose.dat
+%load ../data/simulation-pose-landmark.dat
 
 % real-world datasets
 %load ../data/intel.dat
